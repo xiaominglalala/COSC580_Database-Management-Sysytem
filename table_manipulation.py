@@ -102,12 +102,9 @@ def table_functions(sql_tokens, current_database):
             writer = csv.writer(f)
             writer.writerows(lines)
 
-
-
-
-
         print("Table %s dropped successfully" % table_name.upper())
         return
+
     # Alter table
     if first_token == "alter" and second_token == "table":
         table_name = sql_tokens[2]
