@@ -108,16 +108,7 @@ def table_functions(sql_tokens, current_database):
     # Alter table
     if first_token == "alter" and second_token == "table":
         table_name = sql_tokens[2]
-        return
-
-    ### Index
-
-    # Create Index
-    if first_token == "create" and second_token == "index":
-        return
-
-    # Drop Index
-    if first_token == "drop" and second_token == "index":
+        # TODO
         return
 
     return "Error!"
