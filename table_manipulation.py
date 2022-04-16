@@ -5,7 +5,7 @@ import csv
 from sql_parser import *
 
 def table_functions(sql_tokens, current_database):
-    # Create table
+
     if current_database == None:
         print("You must choose the database! Please enter: USE DATABASE YOUR_DATABASE")
         print("Replace 'YOUR_DATABASE' with your target database.")
@@ -16,6 +16,7 @@ def table_functions(sql_tokens, current_database):
     root_0 = os.path.join(os.getcwd(), "Database_System")
     root_1 = os.path.join(root_0, current_database)
 
+    # Create table
     if first_token == "create" and second_token == "table":
         table_name = sql_tokens[2]
 
@@ -49,18 +50,16 @@ def table_functions(sql_tokens, current_database):
         col_num = len(attribute_names)
 
         # Save primary key:
-        with open(os.path.join(root_1, "primary key table"), 'a', encoding='utf-8', newline='') as f:
+        with open(os.path.join(root_1, "primary_key.csv"), 'a', encoding='utf-8', newline='') as f:
             writer = csv.writer(f)
-            writer.writerow([table_name, primary_key])
+            writer.writerow([table_name, primary_key[0]])
         f.close()
 
-
-
-        # with open(os.path.join(root_1, "%s.csv" % table_name), 'a', encoding='utf-8', newline='') as f:
-        #     writer = csv.writer(f)
-        #     writer.writerow([table_name])
-        # f.close()
-
+        # Write attribute names
+        with open(os.path.join(root_1, "%s.csv" % table_name), 'a', encoding='utf-8', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow([i for i in attribute_names])
+        f.close()
 
         # Write table name into table_name.csv
         # 用'a' 才能不覆盖写入; newline解决多空行
@@ -74,6 +73,40 @@ def table_functions(sql_tokens, current_database):
     # Drop table
     if first_token == "drop" and second_token == "table":
         table_name = sql_tokens[2]
+        table_file = os.path.join(root_1, "%s.csv" % table_name)
+        # Delete table file
+        if os.path.isfile(table_file):
+            os.remove(table_file)
+
+        # Delete table name
+        lines = list()
+        with open(os.path.join(root_1, "table_name.csv"), 'r')as f:
+            reader = csv.reader(f)
+            for row in reader:
+                if row[0] != table_name:
+                    lines.append(row)
+        # Use "w" to overwrite
+        with open(os.path.join(root_1, "table_name.csv"), 'w', encoding='utf-8', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerows(lines)
+
+        # Delete primary key
+        lines = list()
+        with open(os.path.join(root_1, "primary_key.csv"), 'r')as f:
+            reader = csv.reader(f)
+            for row in reader:
+                if row[0] != table_name:
+                    lines.append(row)
+        # Use "w" to overwrite
+        with open(os.path.join(root_1, "primary_key.csv"), 'w', encoding='utf-8', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerows(lines)
+
+
+
+
+
+        print("Table %s dropped successfully" % table_name.upper())
         return
     # Alter table
     if first_token == "alter" and second_token == "table":
