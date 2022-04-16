@@ -18,19 +18,19 @@ def parse_sql(sql):
         print("token list:", i)
     return sql_tokens
 
-def parse_sql_normal(sql):
-    sql = sql.replace(';', '')
-    while sql.find("'") != -1:
-        sql = sql.replace("'", "")
-    while sql.find('\t') != -1:
-        sql = sql.replace("\t", " ")
-    while sql.find('\n') != -1:
-        sql = sql.replace("\n", " ")
-
-    sql_tokens = sql.split(" ")
-    sql_tokens[:] = [token for token in sql_tokens]
-
-    return sql_tokens
+# def parse_sql_normal(sql):
+#     sql = sql.replace(';', '')
+#     while sql.find("'") != -1:
+#         sql = sql.replace("'", "")
+#     while sql.find('\t') != -1:
+#         sql = sql.replace("\t", " ")
+#     while sql.find('\n') != -1:
+#         sql = sql.replace("\n", " ")
+#
+#     sql_tokens = sql.split(" ")
+#     sql_tokens[:] = [token for token in sql_tokens]
+#
+#     return sql_tokens
 
 def create_table_parse(input):
     def get_attribute_list(shit_attributes):
@@ -52,9 +52,8 @@ def create_table_parse(input):
         return attribute_list
 
     #input = "CREATE TABLE EMPLOYEE (emp# SMALLINT NOT NULL, name CHAR(20) NOT NULL, salary DECIMAL(5,2) NULL,primary key (emp#));"
-    tokens = parse_sql_normal(input)
     rule = "\((.*)\)"
-    tokens_update = ' '.join(tokens)
+    tokens_update = ' '.join(input)
     attribute_bad_list = re.compile(rule).findall(tokens_update)
     attribute_list = get_attribute_list(attribute_bad_list[0])
     return attribute_list

@@ -45,3 +45,4 @@ for attribute in attribute_list:
         attribute_names.append(attribute[0])
 print(attribute_names)
 print(primary_key)
+

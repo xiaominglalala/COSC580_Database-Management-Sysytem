@@ -53,6 +53,13 @@ def databse_functions(sql_tokens):
         if database_name not in database_name_list:
             print("Woops! Can not find this database.")
         else:
+            # Drop files
+            path = os.path.join(root, database_name)
+            ls = os.listdir(path)
+            for i in ls:
+                c_path = os.path.join(path, i)
+                os.remove(c_path)
+            # Drop dir
             os.removedirs(os.path.join(root, database_name))
             print("Dropped successfully!")
         return None
