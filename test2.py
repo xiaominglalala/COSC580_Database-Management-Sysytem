@@ -21,7 +21,7 @@ def get_attribute_list(attrsCons):
 
 input = "CREATE TABLE EMPLOYEE (emp# SMALLINT NOT NULL, name CHAR(20) NOT NULL, salary DECIMAL(5,2) NULL,primary key (emp#));"
 
-tokens = parse_sql_normal(input)
+tokens = parse_sql(input)
 rule = "\((.*)\)"
 tokens_update = ' '.join(tokens)
 attribute_bad_list = re.compile(rule).findall(tokens_update)
@@ -45,3 +45,4 @@ for attribute in attribute_list:
         attribute_names.append(attribute[0])
 print(attribute_names)
 print(primary_key)
+

@@ -6,7 +6,7 @@ def get_exist_database(path):
     for f in os.listdir(path):
         if f not in database_name_list:
             database_name_list.append(f)
-    #print(database_name_list)
+    print(database_name_list)
 
 def databse_functions(sql_tokens):
 
@@ -16,12 +16,15 @@ def databse_functions(sql_tokens):
     #     print("Have a good day! Bye!")
     #     return None
 
+    ## sql_tokens = sql_tokens.split()
     first_token = sql_tokens[0]
     second_token = sql_tokens[1]
+    print(first_token)
     root = os.path.join(os.getcwd(), "Database_System")
 
     ### Database_System
     get_exist_database(root)
+
 
     # Create database
     # eg: create DATABASE RUNOOB;
@@ -40,7 +43,7 @@ def databse_functions(sql_tokens):
             # use csv to save tables
             with open(os.path.join(path, "table_name.csv"), "w", encoding='utf-8', newline='') as f:
                 writer = csv.writer(f)
-                writer.writerow(["Table Name"])
+                writer.writerow(["Table Name:"])
             f.close()
         return None
 
@@ -53,15 +56,25 @@ def databse_functions(sql_tokens):
         if database_name not in database_name_list:
             print("Woops! Can not find this database.")
         else:
+            # Drop files
+            path = os.path.join(root, database_name)
+            ls = os.listdir(path)
+            for i in ls:
+                c_path = os.path.join(path, i)
+                os.remove(c_path)
+            # Drop dir
             os.removedirs(os.path.join(root, database_name))
             print("Dropped successfully!")
         return None
 
     # Use database; Pay attention to database name!
     # eg:use RUNOOB;
+    print(first_token)
     if first_token == "use":
-        database_name = second_token
+        database_name = sql_tokens[2]
+        # print(database_name)
         if database_name in database_name_list:
+            # print("###################")
             current_database = database_name
             print("The current database is %s." % database_name.upper())
             return current_database
@@ -72,3 +85,6 @@ def databse_functions(sql_tokens):
     return "Error!"
 
 
+# root = os.path.join(os.getcwd(), "Database_System")
+# get_exist_database(root)
+# print(databse_functions("use database test_database"))

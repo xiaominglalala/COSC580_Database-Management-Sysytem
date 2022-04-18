@@ -1,36 +1,23 @@
 import sqlparse
 import re
 
-def parse_sql(sql):
-    sql = sql.replace(';', '')
-    while sql.find("'") != -1:
-        sql = sql.replace("'", "")
-    while sql.find('\t') != -1:
-        sql = sql.replace("\t", " ")
-    while sql.find('\n') != -1:
-        sql = sql.replace("\n", " ")
+def parse_sql(input):
+    input = input.replace(';', '')
+    while input.find("'") != -1:
+        input = input.replace("'", "")
+    while input.find('\t') != -1:
+        input = input.replace("\t", " ")
+    while input.find('\n') != -1:
+        input = input.replace("\n", " ")
 
 
-    sql_tokens = sql.split(" ")
+    sql_tokens = input.split(" ")
     sql_tokens[:] = [token.lower() for token in sql_tokens]
     # 之后删掉
-    for i in sql_tokens:
-        print("token list:", i)
+    # for i in sql_tokens:
+    #     print("token list:", i)
     return sql_tokens
 
-def parse_sql_normal(sql):
-    sql = sql.replace(';', '')
-    while sql.find("'") != -1:
-        sql = sql.replace("'", "")
-    while sql.find('\t') != -1:
-        sql = sql.replace("\t", " ")
-    while sql.find('\n') != -1:
-        sql = sql.replace("\n", " ")
-
-    sql_tokens = sql.split(" ")
-    sql_tokens[:] = [token for token in sql_tokens]
-
-    return sql_tokens
 
 def create_table_parse(input):
     def get_attribute_list(shit_attributes):
@@ -52,9 +39,15 @@ def create_table_parse(input):
         return attribute_list
 
     #input = "CREATE TABLE EMPLOYEE (emp# SMALLINT NOT NULL, name CHAR(20) NOT NULL, salary DECIMAL(5,2) NULL,primary key (emp#));"
-    tokens = parse_sql_normal(input)
     rule = "\((.*)\)"
-    tokens_update = ' '.join(tokens)
+    tokens_update = ' '.join(input)
     attribute_bad_list = re.compile(rule).findall(tokens_update)
     attribute_list = get_attribute_list(attribute_bad_list[0])
     return attribute_list
+
+def create_index_parse(input):
+    rule = "\((.*)\)"
+    tokens_update = ' '.join(input)
+    attribute_bad_list = re.compile(rule).findall(tokens_update)
+    index_name = attribute_bad_list[0]
+    return index_name

@@ -1,5 +1,6 @@
 from database_manipulation import *
 from table_manipulation import *
+from index_manipulation import *
 from sql_parser import *
 
 
@@ -33,6 +34,10 @@ if __name__ == '__main__':
             databse_functions(sql_tokens)
         elif sql_tokens[1]== "table":
             table_functions(sql_tokens, current_database)
+        elif sql_tokens[1] == "index":
+            index_functions(sql_tokens, current_database)
+        else:
+            print("Error! Please enter a command with correct syntax!")
 
 
 
