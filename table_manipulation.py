@@ -3,6 +3,7 @@
 import os
 import csv
 from sql_parser import *
+from index_manipulation import *
 
 def table_functions(sql_tokens, current_database):
 
@@ -83,7 +84,15 @@ def table_functions(sql_tokens, current_database):
     if first_token == "drop" and second_token == "table":
         table_name = sql_tokens[2]
         table_file = os.path.join(root_1, "%s.csv" % table_name)
+        # print(table_file)
+
         # If table name doesn't exist
+
+        if not os.path.exists(table_file):
+            print("Woops! This table doesn't exist!")
+            return None
+
+        # Delete table name from table_name.csv
         flag = 0
         with open(os.path.join(root_1, "table_name.csv"), 'r')as f:
             reader = csv.reader(f)
@@ -129,6 +138,24 @@ def table_functions(sql_tokens, current_database):
             writer.writerows(lines)
         f.close()
 
+        # Drop Index
+        lines = list()
+        with open(os.path.join(root_1, "index.csv"), 'r')as f:
+            reader = csv.reader(f)
+            for row in reader:
+                if row[0] != table_name:
+                    lines.append(row)
+        f.close()
+
+        # Use "w" to overwrite
+        with open(os.path.join(root_1, "index.csv"), 'w', encoding='utf-8', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerows(lines)
+        f.close()
+
+
+
+
         print("Table %s dropped successfully" % table_name.upper())
         return
 
@@ -138,4 +165,6 @@ def table_functions(sql_tokens, current_database):
         # TODO
         return
 
-    return "Error!"
+    else:
+     print("Error! Please enter a command with correct syntax!")
+     return
