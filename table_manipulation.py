@@ -11,6 +11,9 @@ def table_functions(sql_tokens, current_database):
         print("Replace 'YOUR_DATABASE' with your target database.")
         return None
 
+    if not(sql_tokens[0] and sql_tokens[1]):
+        print("Error! Please enter a command with correct syntax!")
+
     first_token = sql_tokens[0]
     second_token = sql_tokens[1]
     root_0 = os.path.join(os.getcwd(), "Database_System")
@@ -85,10 +88,13 @@ def table_functions(sql_tokens, current_database):
             for row in reader:
                 if row[0] != table_name:
                     lines.append(row)
+        f.close()
+
         # Use "w" to overwrite
         with open(os.path.join(root_1, "table_name.csv"), 'w', encoding='utf-8', newline='') as f:
             writer = csv.writer(f)
             writer.writerows(lines)
+        f.close()
 
         # Delete primary key
         lines = list()
@@ -97,10 +103,13 @@ def table_functions(sql_tokens, current_database):
             for row in reader:
                 if row[0] != table_name:
                     lines.append(row)
+        f.close()
+
         # Use "w" to overwrite
         with open(os.path.join(root_1, "primary_key.csv"), 'w', encoding='utf-8', newline='') as f:
             writer = csv.writer(f)
             writer.writerows(lines)
+        f.close()
 
         print("Table %s dropped successfully" % table_name.upper())
         return

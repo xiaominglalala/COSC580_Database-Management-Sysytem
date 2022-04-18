@@ -40,7 +40,7 @@ def databse_functions(sql_tokens):
             # use csv to save tables
             with open(os.path.join(path, "table_name.csv"), "w", encoding='utf-8', newline='') as f:
                 writer = csv.writer(f)
-                writer.writerow(["Table Name"])
+                writer.writerow(["Table Name:"])
             f.close()
         return None
 

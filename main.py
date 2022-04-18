@@ -36,6 +36,8 @@ if __name__ == '__main__':
             table_functions(sql_tokens, current_database)
         elif sql_tokens[1] == "index":
             index_functions(sql_tokens, current_database)
+        else:
+            print("Error! Please enter a command with correct syntax!")
 
 
 
