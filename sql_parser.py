@@ -42,12 +42,18 @@ def create_table_parse(input):
     rule = "\((.*)\)"
     tokens_update = ' '.join(input)
     attribute_bad_list = re.compile(rule).findall(tokens_update)
-    attribute_list = get_attribute_list(attribute_bad_list[0])
-    return attribute_list
+    if not attribute_bad_list:
+        return None
+    else:
+        attribute_list = get_attribute_list(attribute_bad_list[0])
+        return attribute_list
 
 def create_index_parse(input):
     rule = "\((.*)\)"
     tokens_update = ' '.join(input)
     attribute_bad_list = re.compile(rule).findall(tokens_update)
-    index_name = attribute_bad_list[0]
-    return index_name
+    if not attribute_bad_list:
+        return None
+    else:
+        index_name = attribute_bad_list[0]
+        return index_name

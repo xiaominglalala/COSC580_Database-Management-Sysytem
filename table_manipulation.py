@@ -11,28 +11,34 @@ def table_functions(sql_tokens, current_database):
         print("Replace 'YOUR_DATABASE' with your target database.")
         return None
 
-    if not(sql_tokens[0] and sql_tokens[1]):
-        print("Error! Please enter a command with correct syntax!")
-
     first_token = sql_tokens[0]
     second_token = sql_tokens[1]
     root_0 = os.path.join(os.getcwd(), "Database_System")
     root_1 = os.path.join(root_0, current_database)
 
     # Create table
+    # CREATE TABLE EMPLOYEE (emp# SMALLINT NOT NULL, name CHAR(20) NOT NULL, salary DECIMAL(5,2) NULL, primary key (emp#));
     if first_token == "create" and second_token == "table":
         table_name = sql_tokens[2]
 
         # check if table name exists
-        with open(os.path.join(root_1, "table_name.csv"), 'r')as f:
-            reader = csv.reader(f)
-            for row in reader:
-                if row[0] == table_name:
-                    print("Woops! This table already exists!")
-                    return None
+        table_name_file = os.path.join(root_1, "table_name.csv")
+        if os.path.exists(table_name_file):
+            with open(os.path.join(root_1, "table_name.csv"), 'r')as f:
+                reader = csv.reader(f)
+                for row in reader:
+                    if row[0] == table_name:
+                        print("Woops! This table already exists!")
+                        return None
+
 
         # Get attribute_names and primary_key
         attribute_list = create_table_parse(sql_tokens)
+
+        # for create table xx
+        if not attribute_list:
+            print("Error! Please enter a command with correct syntax!")
+            return
         primary_key = []
         attribute_names = []
         for attribute in attribute_list:
@@ -47,8 +53,8 @@ def table_functions(sql_tokens, current_database):
             else:
                 attribute = attribute.split(' ')
                 attribute_names.append(attribute[0])
-        print(attribute_names)
-        print(primary_key)
+        #print(attribute_names)
+        #print(primary_key)
         # 列数 Column Num
         col_num = len(attribute_names)
 
@@ -77,6 +83,18 @@ def table_functions(sql_tokens, current_database):
     if first_token == "drop" and second_token == "table":
         table_name = sql_tokens[2]
         table_file = os.path.join(root_1, "%s.csv" % table_name)
+        # If table name doesn't exist
+        flag = 0
+        with open(os.path.join(root_1, "table_name.csv"), 'r')as f:
+            reader = csv.reader(f)
+            for row in reader:
+                if row[0] == table_name:
+                    flag = 2
+        f.close()
+        if flag != 2:
+            print("This table doesn't exist!")
+            return
+
         # Delete table file
         if os.path.isfile(table_file):
             os.remove(table_file)

@@ -24,25 +24,32 @@ def index_functions(sql_tokens, current_database):
         column_name = create_index_parse(sql_tokens)
 
         # Check if index exists.
-        flag = 0
-        with open(os.path.join(root_1, "index.csv"), 'r')as f:
-            reader = csv.reader(f)
-            for row in reader:
-                if row[0] == table_name and row[1] != index_name:
-                    print("Different index exists. Please drop it first!")
-                    #print("#Example: DROP INDEX 'index_name' ON 'table_name'")
-                elif row[0] == table_name and row[1] == index_name:
-                    print("This index already exists! Please drop it first!")
-                else:
-                    flag = 2
-        f.close()
-
+        flag = 2
+        path = os.path.join(root_1, "index.csv")
+        if os.path.exists(path):
+            with open(path, 'r')as f:
+                reader = csv.reader(f)
+                for row in reader:
+                    if row[0] == table_name and row[1] != index_name:
+                        print("Different index exists. Please drop it first!")
+                        #print("#Example: DROP INDEX 'index_name' ON 'table_name'")
+                        flag = 0
+                    elif row[0] == table_name and row[1] == index_name:
+                        print("This index already exists! Please drop it first!")
+                        flag = 0
+                    else:
+                        flag = 2
+            f.close()
 
         if flag == 2:
-            with open(os.path.join(root_1, "index.csv"), 'a', encoding='utf-8', newline='') as f:
+            with open(path, 'a', encoding='utf-8', newline='') as f:
                 writer = csv.writer(f)
                 writer.writerow([table_name, index_name, column_name])
             f.close()
+            print("Index created successfully!")
+
+
+
 
     # Drop Index
     # DROP INDEX [indexName] ON mytable;

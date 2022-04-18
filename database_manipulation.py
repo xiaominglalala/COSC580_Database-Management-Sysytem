@@ -1,6 +1,7 @@
 import os
 import csv
 database_name_list = []
+import pandas as pd
 
 def get_exist_database(path):
     for f in os.listdir(path):
@@ -38,10 +39,13 @@ def databse_functions(sql_tokens):
             os.mkdir(path)
             print("Created successfully!")
             # use csv to save tables
-            with open(os.path.join(path, "table_name.csv"), "w", encoding='utf-8', newline='') as f:
-                writer = csv.writer(f)
-                writer.writerow(["Table Name:"])
-            f.close()
+            # with open(os.path.join(path, "table_name.csv"), "w", encoding='utf-8', newline='') as f:
+            #     writer = csv.writer(f)
+            #     writer.writerow(["Table Names:"])
+            # f.close()
+            # df = pd.DataFrame(list())
+            # df.to_csv(os.path.join(path, "table_name.csv"))
+
         return None
 
     # Drop database
