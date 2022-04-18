@@ -2,7 +2,7 @@ from database_manipulation import *
 from table_manipulation import *
 from index_manipulation import *
 from sql_parser import *
-
+from select_manipulation import *
 
 if __name__ == '__main__':
 
@@ -36,6 +36,8 @@ if __name__ == '__main__':
             table_functions(sql_tokens, current_database)
         elif sql_tokens[1] == "index":
             index_functions(sql_tokens, current_database)
+        elif first_token=='select':
+            excute_select(sql,current_database)
         else:
             print("Error! Please enter a command with correct syntax!")
 
