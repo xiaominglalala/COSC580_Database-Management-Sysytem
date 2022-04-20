@@ -1,12 +1,13 @@
 import os
 import csv
 database_name_list = []
+import pandas as pd
 
 def get_exist_database(path):
     for f in os.listdir(path):
         if f not in database_name_list:
             database_name_list.append(f)
-    print(database_name_list)
+    #print(database_name_list)
 
 def databse_functions(sql_tokens):
 
@@ -16,15 +17,12 @@ def databse_functions(sql_tokens):
     #     print("Have a good day! Bye!")
     #     return None
 
-    ## sql_tokens = sql_tokens.split()
     first_token = sql_tokens[0]
     second_token = sql_tokens[1]
-    print(first_token)
     root = os.path.join(os.getcwd(), "Database_System")
 
     ### Database_System
     get_exist_database(root)
-
 
     # Create database
     # eg: create DATABASE RUNOOB;
@@ -41,10 +39,13 @@ def databse_functions(sql_tokens):
             os.mkdir(path)
             print("Created successfully!")
             # use csv to save tables
-            with open(os.path.join(path, "table_name.csv"), "w", encoding='utf-8', newline='') as f:
-                writer = csv.writer(f)
-                writer.writerow(["Table Name:"])
-            f.close()
+            # with open(os.path.join(path, "table_name.csv"), "w", encoding='utf-8', newline='') as f:
+            #     writer = csv.writer(f)
+            #     writer.writerow(["Table Names:"])
+            # f.close()
+            # df = pd.DataFrame(list())
+            # df.to_csv(os.path.join(path, "table_name.csv"))
+
         return None
 
     # Drop database
@@ -69,12 +70,9 @@ def databse_functions(sql_tokens):
 
     # Use database; Pay attention to database name!
     # eg:use RUNOOB;
-    print(first_token)
     if first_token == "use":
-        database_name = sql_tokens[2]
-        # print(database_name)
+        database_name = second_token
         if database_name in database_name_list:
-            # print("###################")
             current_database = database_name
             print("The current database is %s." % database_name.upper())
             return current_database
@@ -85,6 +83,3 @@ def databse_functions(sql_tokens):
     return "Error!"
 
 
-# root = os.path.join(os.getcwd(), "Database_System")
-# get_exist_database(root)
-# print(databse_functions("use database test_database"))

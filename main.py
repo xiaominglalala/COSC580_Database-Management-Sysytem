@@ -2,6 +2,9 @@ from database_manipulation import *
 from table_manipulation import *
 from index_manipulation import *
 from sql_parser import *
+from insert import *
+from delete import *
+from update import
 
 
 if __name__ == '__main__':
@@ -22,6 +25,9 @@ if __name__ == '__main__':
         #first_token = sql_tokens[0]
         #print("first token:", first_token)
         first_token = sql_tokens[0]
+
+        if parse_three_part(sql):
+            token = parse_three_part(sql)
 
         exit_command = ["exit", "Exit", "exit()", "Exit()"]
         if sql_tokens[0] in exit_command:
