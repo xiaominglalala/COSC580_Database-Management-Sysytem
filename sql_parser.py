@@ -271,5 +271,5 @@ def parse_update(sql):
 
 
 parse_three_part("INSERT INTO play (index,name) VALUES (4,rob);")
-parse_three_part("UPDATE table_name SET column1 = value1, column2 = value2 WHERE condition=1 or aaa=2;")
-parse_three_part("DELETE FROM Customers WHERE CustomerName='Alfreds Futterkiste';")
+parse_three_part("UPDATE play SET name=gggg WHERE id=c;")
+parse_three_part("DELETE FROM play WHERE id=c;")
