@@ -89,19 +89,23 @@ def parse_insert(sql):
         del tokens[-1]
 
     res = []
+    tokens = [x.strip() for x in tokens if x.strip()!='']
+    # print(tokens)
     if len(tokens) == 4:
     # insert part row
         res+=tokens[0].split()
         res.append(tokens[1].split(","))
         res.append(tokens[2])
         res.append(tokens[3].split(","))
-    elif len(tokens)==3:
+        # print("++++++++++")
+        # print(res)
+    elif len(tokens)==2:
         res+=tokens[0].split(" ")
         # res.append(tokens[1].split(","))
-        res.append(tokens[1])
-        res.append(tokens[2].split(","))
+        # res.append(tokens[1])
+        res.append(tokens[1].split(","))
     # print(sql)
-    print('insert done')
+    # print('insert done')
     return res
 
 
@@ -148,28 +152,28 @@ def parse_delete(sql):
                     if "=" in i:
                         if "!=" in i:
                             index = i.find('!=')
-                            c, v = i[:index], i[index + 2:]
+                            c, v = i[:index].strip(), i[index + 2:].strip()
                             conditions.append((c, '!=', v))
                         elif ">=" in i:
                             index = i.find('>=')
-                            c, v = i[:index], i[index + 2:]
+                            c, v = i[:index].strip(), i[index + 2:].strip()
                             conditions.append((c, '>=', v))
                         elif "<=" in i:
                             index = i.find('<=')
-                            c, v = i[:index], i[index + 2:]
+                            c, v = i[:index].strip(), i[index + 2:].strip()
                             conditions.append((c, '<=', v))
                         else:
                             index = i.find('=')
-                            c, v = i[:index], i[index + 1:]
+                            c, v = i[:index].strip(), i[index + 1:].strip()
                             conditions.append((c, '=', v))
 
                     elif "<" in i:
                         index = i.find('<')
-                        c, v = i[:index], i[index + 1:]
+                        c, v = i[:index].strip(), i[index + 1:].strip()
                         conditions.append((c, '<', v))
                     elif ">" in i:
                         index = i.find('>')
-                        c, v = i[:index], i[index + 1:]
+                        c, v = i[:index].strip(), i[index + 1:].strip()
                         conditions.append((c, '>', v))
                     else:
                         print('Wrong syntax for conditions')
@@ -232,28 +236,28 @@ def parse_update(sql):
                     if "=" in i:
                         if "!=" in i:
                             index = i.find('!=')
-                            c, v = i[:index], i[index + 2:]
+                            c, v = i[:index].strip(), i[index + 2:].strip()
                             conditions.append((c, '!=', v))
                         elif ">=" in i:
                             index = i.find('>=')
-                            c, v = i[:index], i[index + 2:]
+                            c, v = i[:index].strip(), i[index + 2:].strip()
                             conditions.append((c, '>=', v))
                         elif "<=" in i:
                             index = i.find('<=')
-                            c, v = i[:index], i[index + 2:]
+                            c, v = i[:index].strip(), i[index + 2:].strip()
                             conditions.append((c, '<=', v))
                         else:
                             index = i.find('=')
-                            c, v = i[:index], i[index + 1:]
+                            c, v = i[:index].strip(), i[index + 1:].strip()
                             conditions.append((c, '=', v))
 
                     elif "<" in i:
                         index = i.find('<')
-                        c, v = i[:index], i[index + 1:]
+                        c, v = i[:index].strip(), i[index + 1:].strip()
                         conditions.append((c, '<', v))
                     elif ">" in i:
                         index = i.find('>')
-                        c, v = i[:index], i[index + 1:]
+                        c, v = i[:index].strip(), i[index + 1:].strip()
                         conditions.append((c, '>', v))
                     else:
                         print('Wrong syntax for conditions')

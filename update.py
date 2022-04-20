@@ -8,6 +8,7 @@ import re
 # tokens = ['UPDATE', 'table_name', 'SET', [column1 = value1, column2 = value2], 'WHERE', [('condition', '=', '1 '), 'or', (' aaa', '=', '2')]]
 def update_row(path,value_dict,cond):
     df = pd.read_csv(path)
+    # df = df.astype(str)
     index = df.index
     # condition = df
     apples_indices_list = []
@@ -47,10 +48,10 @@ def update_row(path,value_dict,cond):
             # print(condition)
 
             apples_indices_list.append(apples_indices.tolist())
-    # print(apples_indices_list)
+    print(apples_indices_list)
   
     while len(apples_indices_list)>1:
-        # print(apples_indices_list)
+        print(apples_indices_list)
         if apples_indices_list[1] == 'and':
             set1 = set(apples_indices_list[0])
             set2 = set(apples_indices_list[2])
@@ -75,6 +76,7 @@ def update_row(path,value_dict,cond):
 
 def update_whole_row(path,value_dict):
     df = pd.read_csv(path)
+    # df = df.astype(str)
     index = df.index
     condition = df['index'] == df['index']
     apples_indices = index[condition]

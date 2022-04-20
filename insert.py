@@ -16,7 +16,9 @@ def insert_row(path,values):
     # print(attributes)
     attrib = []
     attrib.append(attributes)
-    if len(attrib) == len(values):
+    # print(attrib)
+    # print(values)
+    if len(attrib[0]) == len(values):
 
         with open( path,'a', encoding='utf-8', newline='') as f:
             writer = csv.writer(f)
@@ -35,6 +37,7 @@ def insert_part_row(path,columns,values):
 def insert(tokens,database):
     root_0 = os.path.join(os.getcwd(), "Database_System")
     root_1 = os.path.join(root_0, database) 
+    # print("-----------------------------")
     # tokens from parser, should be a list of string after splited input. database is the database we should in.
 
     # what if no databease seleted? this should be solved in father py file.
@@ -43,6 +46,7 @@ def insert(tokens,database):
         # what if this table not exist
 
         path = os.path.join(root_1, table_name+".csv")
+        # print(len(tokens))
         if len(tokens)<6:
         # insert whole rows in table
             values = tokens[4]
