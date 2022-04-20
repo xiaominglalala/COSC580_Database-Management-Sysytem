@@ -67,5 +67,5 @@ def insert(tokens,database):
 # path = "play.csv"
 # # insert_row(path,['3','john','c'])
 # insert_part_row(path,['index','name'],['4','rob'])
-insert(['insert', 'into', 'play', ['index','name'], ' values ', ['4','rob']],'play')
+# insert(['insert', 'into', 'play', ['index','name'], ' values ', ['4','rob']],'play')
 

@@ -73,8 +73,8 @@ def parse_three_part(sql):
         tokens = parse_delete(sql)
     else:
         print("not me")
-        return null
-    print(tokens)
+        return None
+    # print(tokens)
     return tokens
         
 
@@ -101,7 +101,7 @@ def parse_insert(sql):
         res.append(tokens[1])
         res.append(tokens[2].split(","))
     # print(sql)
-    # print(res)
+    print('insert done')
     return res
 
 
@@ -177,9 +177,9 @@ def parse_delete(sql):
             # print(conditions)
             tokens.append(conditions)
     else:
-        print(sql)
         tokens = sql.split()
     # print(tokens)
+    print('delete done')
     return tokens
 
 
@@ -266,10 +266,10 @@ def parse_update(sql):
         tokens.append("set")
         tokens.append(parts[1].split(','))
 
-    # print(tokens)
+    print('update done')
     return tokens
 
 
-parse_three_part("INSERT INTO play (index,name) VALUES (4,rob);")
-parse_three_part("UPDATE play SET name=gggg WHERE id=c;")
-parse_three_part("DELETE FROM play WHERE id=c;")
+# parse_three_part("INSERT INTO play (index,name) VALUES (4,rob);")
+# parse_three_part("UPDATE play SET name=gggg WHERE id=c;")
+# parse_three_part("DELETE FROM play WHERE id=c;")

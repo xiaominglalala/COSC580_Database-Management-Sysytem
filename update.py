@@ -2,28 +2,11 @@ import os
 import csv
 import pandas as pd
 import sql_parser
+import re
 
-# DELETE FROM Customers WHERE CustomerName='Alfreds Futterkiste';
-# tokens = ['DELETE', 'FROM', 'Customers', 'WHERE', [('CustomerName','=',"'Alfreds Futterkiste'""]]
-def delete_all_rows(path):
-    with open(path,'r', encoding='utf-8', newline='') as f:
-        reader = csv.reader(f, delimiter=',')
-        for i,row in enumerate(reader):
-            if i == 0:
-                attributes = row
-                break
-        f.close()
-    # print(attributes)
-    attrib = []
-    attrib.append(attributes)
-    # print(attrib)
-
-    with open(path,'w', encoding='utf-8', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerows(attrib)
-        f.close()
-
-def delete_row(path,cond):
+# UPDATE table_name SET column1 = value1, column2 = value2, ... WHERE condition;
+# tokens = ['UPDATE', 'table_name', 'SET', [column1 = value1, column2 = value2], 'WHERE', [('condition', '=', '1 '), 'or', (' aaa', '=', '2')]]
+def update_row(path,value_dict,cond):
     df = pd.read_csv(path)
     index = df.index
     # condition = df
@@ -64,6 +47,8 @@ def delete_row(path,cond):
             # print(condition)
 
             apples_indices_list.append(apples_indices.tolist())
+    # print(apples_indices_list)
+  
     while len(apples_indices_list)>1:
         # print(apples_indices_list)
         if apples_indices_list[1] == 'and':
@@ -83,41 +68,68 @@ def delete_row(path,cond):
             apples_indices_list.insert(0,list(iset))
         else:
             break
+            
+    new_df = pd.DataFrame(value_dict,index=apples_indices_list[0])
+    df.update(new_df)
+    df.to_csv(path, index=False)
 
-    # con = apples_indices_list[0]
+def update_whole_row(path,value_dict):
+    df = pd.read_csv(path)
+    index = df.index
+    condition = df['index'] == df['index']
+    apples_indices = index[condition]
+    # get only rows with "apple"
 
-    df =  df.drop(index=apples_indices_list[0])
+    apples_indices_list = apples_indices.tolist()
+    new_df = pd.DataFrame(value_dict,index=apples_indices_list)
+    df.update(new_df)
     df.to_csv(path, index=False)
 
 
-def delete(tokens,database):
+
+def update(tokens,database):
     root_0 = os.path.join(os.getcwd(), "Database_System")
     root_1 = os.path.join(root_0, database) 
     # tokens from parser, should be a list of string after splited input. database is the database we should in.
 
     # what if no databease seleted? this should be solved in father py file.
     try:
-        table_name = tokens[2]
+        table_name = tokens[1]
         # what if this table not exist
 
         path = os.path.join(root_1, table_name+".csv")
-        if len(tokens) < 4:
-        # delete all rows in table
-            delete_all_rows(path)
+
+        # TODO check columns exist,len right
+        value_list = re.split(' |=|,',','.join(tokens[3]))
+        value_list = [i for i in value_list if i]
+        value_dict = {}
+        i=0
+        while i+1 < len(value_list):
+            # print(i)
+            value_dict[value_list[i]]=value_list[i+1]
+            # print("++++++++")
+            i+=2
+        # print(value_dict)
+        if tokens[4].lower()=='where':
+        # update condition rows in table
+            
+            
+            # TODO check condition exist
+            condition = tokens[5]
+            # condition = [i for i in condition if i]
+
+            update_row(path,value_dict,condition)
         else:
-        # delete determain row
-            if tokens[3].upper() != "WHERE":
-            # check sql valid
-                print("Error!! it cannot be %s here" % tokens[3])
-            else:
-                # find index of the row
-                condition = tokens[4]
-                delete_row(path,condition)
+        # update all row
+            update_whole_row(path,value_dict)
     except:
         print("something went wrong, may be table name is wrong .")
 
 
 # path = "play.csv"
-# delete_row(path,[('id','=','c'),'and',('sha','=','3323'),'or',('mmm','=','111')])
+# # update_row(path,{'name': 'ccc'},['id','v'])
+# # update_row(path,{'name': 'ttttttt'},[('id','=','c'),'and',('sha','=','3333'),'or',('mmm','=','111')])
+# update_row(path,{'name': 'gggggg'},[('sha','=','2222')])
 
-# delete(['delete', 'from', 'play', 'where', [('id','=','c')]],'play')
+# update_whole_row(path,{'name': 'ame', 'id': 'v'})
+# update(['update', 'play', 'set', ['name=ggggg'], 'where', [('id','=','c')]],'play')
