@@ -105,7 +105,7 @@ def parse_insert(sql):
         # res.append(tokens[1])
         res.append(tokens[1].split(","))
     # print(sql)
-    # print('insert done')
+    print('insert done')
     return res
 
 
