@@ -5,7 +5,7 @@ from sql_parser import *
 from insert import *
 from delete import *
 from update import *
-
+from select import *
 
 if __name__ == '__main__':
 
@@ -49,6 +49,8 @@ if __name__ == '__main__':
         elif first_token =='delete':
             subtokens = parse_three_part(sql)
             delete(subtokens, current_database)
+        elif first_token =='select':
+            excute_select(sql,current_database)
         else:
             print("Error! Please enter a command with correct syntax!")
 
