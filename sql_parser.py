@@ -72,7 +72,7 @@ def parse_three_part(sql):
     elif 'delete' in sql:
         tokens = parse_delete(sql)
     else:
-        print("not me")
+        print("Not Me")
         return None
     # print(tokens)
     return tokens
@@ -105,7 +105,7 @@ def parse_insert(sql):
         # res.append(tokens[1])
         res.append(tokens[1].split(","))
     # print(sql)
-    # print('insert done')
+    print('Insert Done')
     return res
 
 
@@ -183,7 +183,7 @@ def parse_delete(sql):
     else:
         tokens = sql.split()
     # print(tokens)
-    print('delete done')
+    print('Delete Done')
     return tokens
 
 
@@ -270,7 +270,7 @@ def parse_update(sql):
         tokens.append("set")
         tokens.append(parts[1].split(','))
 
-    print('update done')
+    print('Update Done')
     return tokens
 
 

@@ -58,6 +58,9 @@ def insert(tokens,database):
             # print(tokens[4].lower() == "values")
             if "values" in tokens[4].lower() and isinstance(tokens[3],list) and isinstance(tokens[5],list):
                 columns = tokens[3]
+                # for item in columns:
+                #     item
+                columns = [i.strip() for i in columns]
                 values = tokens[5]
                 insert_part_row(path,columns,values)
             else:
