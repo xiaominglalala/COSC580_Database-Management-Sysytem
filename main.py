@@ -2,7 +2,10 @@ from database_manipulation import *
 from table_manipulation import *
 from index_manipulation import *
 from sql_parser import *
-
+from insert import *
+from delete import *
+from update import *
+from select import *
 
 if __name__ == '__main__':
 
@@ -23,12 +26,13 @@ if __name__ == '__main__':
         #print("first token:", first_token)
         first_token = sql_tokens[0]
 
+
         exit_command = ["exit", "Exit", "exit()", "Exit()"]
         if sql_tokens[0] in exit_command:
             print("Have a good day! Bye!")
             break
 
-        if first_token == "use":
+        elif first_token == "use":
             current_database = databse_functions(sql_tokens)
         elif sql_tokens[1] == "database":
             databse_functions(sql_tokens)
@@ -36,6 +40,17 @@ if __name__ == '__main__':
             table_functions(sql_tokens, current_database)
         elif sql_tokens[1] == "index":
             index_functions(sql_tokens, current_database)
+        elif first_token =='insert':
+            subtokens = parse_three_part(sql)
+            insert(subtokens, current_database)
+        elif first_token =='update':
+            subtokens = parse_three_part(sql)
+            update(subtokens, current_database)
+        elif first_token =='delete':
+            subtokens = parse_three_part(sql)
+            delete(subtokens, current_database)
+        elif first_token =='select':
+            excute_select(sql,current_database)
         else:
             print("Error! Please enter a command with correct syntax!")
 
