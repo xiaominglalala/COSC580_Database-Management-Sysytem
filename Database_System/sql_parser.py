@@ -281,9 +281,11 @@ def parse_update(sql):
 def parse_select(sql):
     keywords=['select','from','inner join','outer join','left join','right join','where','order by','group by']
     sql=sql.lower()
+    sql=re.sub(r';','',sql)
     select_lists = sqlparse.format(sql, reindent=True, indent_tabs=True, comma_first=True).split('\n')
 
     select_lists = [i.strip() for i in select_lists]
+
     join_part=None
     where_part=None
     for i, p in enumerate(select_lists):
@@ -302,7 +304,7 @@ def parse_select(sql):
         print("The sql syntax is wrong!")
         return None
     columns=select_columns[0].split(',')
-
+    columns=[i.strip() for i in columns]
     # parse tables from select
 
     res=from_part.split()[1:]
@@ -312,49 +314,67 @@ def parse_select(sql):
     else:
         tables=res
     if join_part:
+
         res=join_part.split()
         join_type = res[0]
-        join_table = res[2]
-        join_key = tuple(res[-1].split('='))
+        join_table = res[2].strip()
+        if len(res)==7:
+            join_key=(res[4],res[-1])
+        else:
+            join_key = res[-1].split('=')
+            join_key=tuple([i.strip() for i in join_key])
+
         tables.append((join_type,join_table,join_key))
 
     # parse conditions
     conditions = []
     if where_part:
-        where_part=' '.join([i for i in where_part if i.split()[0]=='where'or i.split()[0]=='and' or i.split()[0]=='or'])[6:].split()
-        for i in where_part:
-            if i == 'and' or i == 'or':
-                conditions.append(i)
-            else:
-                if "=" in i:
-                    if "!=" in i:
-                        index = i.find('!=')
-                        c, v = i[:index], i[index + 2:]
-                        conditions.append((c, '!=', v))
-                    elif ">=" in i:
-                        index = i.find('>=')
-                        c, v = i[:index], i[index + 2:]
-                        conditions.append((c, '>=', v))
-                    elif "<=" in i:
-                        index = i.find('<=')
-                        c, v = i[:index], i[index + 2:]
-                        conditions.append((c, '<=', v))
-                    else:
-                        index = i.find('=')
-                        c, v = i[:index], i[index + 1:]
-                        conditions.append((c, '=', v))
+        print([i for i in where_part if i.split()[0]=='where'or i.split()[0]=='and' or i.split()[0]=='or'])
+        where_part=[i for i in where_part if i.split()[0]=='where'or i.split()[0]=='and' or i.split()[0]=='or']
+        where_part=[re.sub(r'^where ','',i) for i in where_part]
+        # where_part=' '.join([i for i in where_part if i.split()[0]=='where'or i.split()[0]=='and' or i.split()[0]=='or'])[6:].split()
 
-                elif "<" in i:
-                    index = i.find('<')
-                    c, v = i[:index], i[index + 1:]
-                    conditions.append((c, '<', v))
-                elif ">" in i:
-                    index = i.find('>')
-                    c, v = i[:index], i[index + 1:]
-                    conditions.append((c, '>', v))
+        for i in where_part:
+            if re.match(r'or|and ',i):
+                conditions.append(re.match(r'or|and ',i)[0].strip())
+                i=''.join(i.split()[1:])
+            else:
+                i=''.join(i.split())
+
+            # if i == 'and' or i == 'or':
+            #     conditions.append(i)
+            # else:
+            if "=" in i:
+                if "!=" in i:
+                    index = i.find('!=')
+                    c, v = i[:index], i[index + 2:]
+                    conditions.append((c, '!=', v))
+                elif ">=" in i:
+                    index = i.find('>=')
+                    c, v = i[:index], i[index + 2:]
+                    conditions.append((c, '>=', v))
+                elif "<=" in i:
+                    index = i.find('<=')
+                    c, v = i[:index], i[index + 2:]
+                    conditions.append((c, '<=', v))
                 else:
-                    print('Wrong syntax for conditions')
-                    return None
+                    keys=i.split('=')
+                    conditions.append((keys[0],'=',keys[1]))
+                    # index = i.find('=')
+                    # c, v = i[:index], i[index + 1:]
+                    # conditions.append((c, '=', v))
+
+            elif "<" in i:
+                index = i.find('<')
+                c, v = i[:index], i[index + 1:]
+                conditions.append((c, '<', v))
+            elif ">" in i:
+                index = i.find('>')
+                c, v = i[:index], i[index + 1:]
+                conditions.append((c, '>', v))
+            else:
+                print('Wrong syntax for conditions')
+                return None
 
     # parse orderby
 
