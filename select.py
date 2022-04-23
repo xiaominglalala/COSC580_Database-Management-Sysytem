@@ -52,19 +52,33 @@ def load_data(open_file,col_n):
     open_file.close()
     return a
 
+def load_data_s(open_file,col_n):
+    a=[]
+    for row in csv.reader(open_file):
+        a.append(row)
+    return np.array(a)
 def con_index(conditions,array,columns,join_flag):
     if len(conditions)==0:
         return [i for i in range(len(array))]
-
-    for state in conditions:
-        if state!='and' and state!='or':
-            if join_flag:
-                col = state[0]
-            else:
-                col = state[0].split('.')[-1]
-            if col not in columns :
-                print('The condition column is not in the table!')
-                return None
+    if len(conditions)==1:
+        state=conditions[0]
+        if join_flag:
+            col = state[0]
+        else:
+            col = state[0].split('.')[-1]
+        if col not in columns:
+            print('The condition column is not in the table!')
+            return None
+    else:
+        for state in conditions:
+            if state!='and' and state!='or':
+                if join_flag:
+                    col = state[0]
+                else:
+                    col = state[0].split('.')[-1]
+                if col not in columns :
+                    print('The condition column is not in the table!')
+                    return None
     match_rows = []
     if len(conditions)==1:
         match_rows.append(set(con_manu(array, conditions[0], columns, join_flag)[0]))
@@ -140,89 +154,141 @@ def join_table(tables,join_table,database_path):
 
     key_index1 = columns_1.index(col_1)
     key_index2 = columns_2.index(col_2)
-    a1=load_data(r_table_1,len(columns_1))
-    a2=load_data(r_table_2,len(columns_2))
+    a1=load_data_s(r_table_1,len(columns_1))
+    a2=load_data_s(r_table_2,len(columns_2))
+    if len(a1)>=10000 and len(a2)>=5000:
+        # lines=[]
+        # for i1,l1 in enumerate(a1):
+        #     for i2,l2 in enumerate(a2):
+        #         if l1[key_index1]==l2[key_index2]:
+        #             lines.append(l1+l2)
+        # lines=np.array(lines)
+        # if join_table[0] == 'left' or join_table[0] == 'outer' or join_table[0] == 'full':
+        #     pass
+        # columns_1 = [table_1 + '.' + i for i in columns_1]
+        # columns_2 = [table_2 + '.' + i for i in columns_2]
+        # columns = columns_1 + columns_2
+        # return columns,lines
+        a1_df=pd.DataFrame(a1)
+        a2_df=pd.DataFrame(a2)
+        a1_df.columns=columns_1
+        a2_df.columns=columns_2
+        if join_table[0] == 'inner':
+            post_df=pd.merge(a1_df,a2_df,left_on=col_1,right_on=col_2,how='inner',suffixes=('.'+table_1,'.'+table_2))
+        elif join_table[0] == 'left':
+            post_df = pd.merge(a1_df, a2_df, left_on=col_1, right_on=col_2, how='left',
+                               suffixes=('.' + table_1, '.' + table_2))
+        elif join_table[0] == 'right':
+            post_df = pd.merge(a1_df, a2_df, left_on=col_1, right_on=col_2, how='right',
+                               suffixes=('.' + table_1, '.' + table_2))
+        elif join_table[0] == 'outer' or join_table[0]=='full':
+            post_df = pd.merge(a1_df, a2_df, left_on=col_1, right_on=col_2, how='outer',
+                               suffixes=('.' + table_1, '.' + table_2))
+        else:
+            print('Join Syntax is wrong! please check')
+            return None
+        if len(post_df.columns)==len(columns_1)+len(columns_2):
+            columns=post_df.columns
+            columns=[i.split('.')[-1]+'.'+i.split('.')[0] for i in columns]
+            lines=post_df.values
+        else:
+            columns_1 = [table_1 + '.' + i for i in columns_1]
+            columns_2 = [table_2 + '.' + i for i in columns_2]
+            columns = columns_1 + columns_2
+            df_columns=post_df.columns
+            df_columns=[i.split('.')[-1]+'.'+i.split('.')[0] if len(i.split('.'))>1 else i for i in df_columns]
+            post_df.columns=df_columns
+            for i,col in enumerate(df_columns):
+                if col!=columns[i]:
+                    df_columns[i]=extra_col=columns[i]
+                    break
+            post_df.columns=df_columns
+            add_col=list(set(columns)-set(df_columns))[0]
+            post_df[add_col]=post_df[[extra_col]]
+            post_df=post_df[columns]
+            lines=post_df.values
+        return columns,lines
+    else:
+        t = np.tile(a1, (len(a2), 1))
+        p = np.repeat(a2, len(a1), axis=0)
+        # combine two tables
+        final_full = np.column_stack((t, p))
+        if join_table[0] == 'inner':
+            lines = np.zeros((1,len(columns_1)+len(columns_2)))
+            for row in final_full:
+                if row[key_index1] == row[key_index2 + len(columns_1)]:
+                    row = np.array(row).reshape(1, len(columns_1)+len(columns_2))
+                    lines = np.r_[lines, row]
+            lines = np.delete(lines, 0, axis=0)
+            # lines = np.delete(lines, key_index2+key_index1+1, axis=1)
+            columns_1 = [table_1 + '.' + i for i in columns_1]
+            columns_2 = [table_2 + '.' + i for i in columns_2]
+            columns = columns_1 + columns_2
+            # columns.pop(key_index2+key_index1+1)
 
-    t = np.tile(a1, (len(a2), 1))
-    p = np.repeat(a2, len(a1), axis=0)
-    # combine two tables
-    final_full = np.column_stack((t, p))
-    if join_table[0] == 'inner':
-        lines = np.zeros((1,len(columns_1)+len(columns_2)))
-        for row in final_full:
-            if row[key_index1] == row[key_index2 + key_index1 + 1]:
-                row = np.array(row).reshape(1, len(columns_1)+len(columns_2))
-                lines = np.r_[lines, row]
-        lines = np.delete(lines, 0, axis=0)
-        # lines = np.delete(lines, key_index2+key_index1+1, axis=1)
-        columns_1 = [table_1 + '.' + i for i in columns_1]
-        columns_2 = [table_2 + '.' + i for i in columns_2]
-        columns = columns_1 + columns_2
-        # columns.pop(key_index2+key_index1+1)
+        elif join_table[0] == 'left':
+            a1_index = []
+            columns_1 = [table_1 + '.' + i for i in columns_1]
+            columns_2 = [table_2 + '.' + i for i in columns_2]
+            columns = columns_1 + columns_2
+            lines = np.zeros((1, len(columns_1)+len(columns_2)))
+            for index, row in enumerate(final_full):
+                if row[key_index1] == row[key_index2 + len(columns_1)]:
+                    a1_index.append(index % len(a1))
+                    row = np.array(row).reshape(1, len(columns_1)+len(columns_2))
+                    lines = np.r_[lines, row]
+            lines = np.delete(lines, 0, axis=0)
+            left_index=set(range(len(a1)))
+            l_index=left_index-set(a1_index)
+            if len(l_index)>=1:
+                for index in l_index:
+                    row=np.array(a1[index].tolist()+[np.nan]*len(columns_2)).reshape(1,len(columns_1)+len(columns_2))
+                    lines = np.r_[lines, row]
+        elif join_table[0] == 'right':
+            a2_index=[]
+            columns_1 = [table_1 + '.' + i for i in columns_1]
+            columns_2 = [table_2 + '.' + i for i in columns_2]
+            columns = columns_1 + columns_2
+            lines = np.zeros((1, len(columns_1)+len(columns_2)))
+            for index,row in enumerate(final_full):
+                if row[key_index1] == row[key_index2 + len(columns_1)]:
+                    a2_index.append(int(index/len(a1)))
+                    row = np.array(row).reshape(1, len(columns_1)+len(columns_2))
+                    lines = np.r_[lines, row]
+            lines = np.delete(lines, 0, axis=0)
+            right_index=set(range(len(a2)))
+            l_index=right_index-set(a2_index)
+            if len(l_index)>=1:
+                for index in l_index:
+                    row=np.array([np.nan]*len(columns_1) + a2[index].tolist()).reshape(1,len(columns_1)+len(columns_2))
+                    lines = np.r_[lines, row]
 
-    elif join_table[0] == 'left':
-        a1_index = []
-        columns_1 = [table_1 + '.' + i for i in columns_1]
-        columns_2 = [table_2 + '.' + i for i in columns_2]
-        columns = columns_1 + columns_2
-        lines = np.zeros((1, len(columns_1)+len(columns_2)))
-        for index, row in enumerate(final_full):
-            if row[key_index1] == row[key_index2 + key_index1 + 1]:
-                a1_index.append(index % len(a1))
-                row = np.array(row).reshape(1, len(columns_1)+len(columns_2))
-                lines = np.r_[lines, row]
-        lines = np.delete(lines, 0, axis=0)
-        left_index=set(range(len(a1)))
-        l_index=left_index-set(a1_index)
-        if len(l_index)>=1:
-            for index in l_index:
-                row=np.array(a1[index].tolist()+[np.nan]*len(columns_2)).reshape(1,len(columns_1)+len(columns_2))
-                lines = np.r_[lines, row]
-    elif join_table[0] == 'right':
-        a2_index=[]
-        columns_1 = [table_1 + '.' + i for i in columns_1]
-        columns_2 = [table_2 + '.' + i for i in columns_2]
-        columns = columns_1 + columns_2
-        lines = np.zeros((1, len(columns_1)+len(columns_2)))
-        for index,row in enumerate(final_full):
-            if row[key_index1] == row[key_index2 + key_index1 + 1]:
-                a2_index.append(int(index/len(a1)))
-                row = np.array(row).reshape(1, len(columns_1)+len(columns_2))
-                lines = np.r_[lines, row]
-        lines = np.delete(lines, 0, axis=0)
-        right_index=set(range(len(a2)))
-        l_index=right_index-set(a2_index)
-        if len(l_index)>=1:
-            for index in l_index:
-                row=np.array([np.nan]*len(columns_1) + a2[index].tolist()).reshape(1,len(columns_1)+len(columns_2))
-                lines = np.r_[lines, row]
-
-    elif join_table[0] == 'full':
-        a1_index=[]
-        a2_index = []
-        columns_1 = [table_1 + '.' + i for i in columns_1]
-        columns_2 = [table_2 + '.' + i for i in columns_2]
-        columns = columns_1 + columns_2
-        lines = np.zeros((1, len(columns_1)+len(columns_2)))
-        for index, row in enumerate(final_full):
-            if row[key_index1] == row[key_index2 + key_index1 + 1]:
-                a1_index.append(index % len(a1))
-                a2_index.append(int(index / len(a1)))
-                row = np.array(row).reshape(1, len(columns_1)+len(columns_2))
-                lines = np.r_[lines, row]
-        lines = np.delete(lines, 0, axis=0)
-        right_index = set(range(len(a2)))
-        l_index = right_index - set(a2_index)
-        if len(l_index) >= 1:
-            for index in l_index:
-                row = np.array([np.nan] * len(columns_1)+a2[index].tolist()).reshape(1, len(columns_1)+len(columns_2))
-                lines = np.r_[lines, row]
-        left_index=set(range(len(a1)))
-        l_index=left_index-set(a1_index)
-        if len(l_index)>=1:
-            for index in l_index:
-                row=np.array(a1[index].tolist()+[np.nan]*len(columns_2)).reshape(1,len(columns_1)+len(columns_2))
-                lines = np.r_[lines, row]
+        elif join_table[0] == 'full' or join_table[0]=='outer':
+            a1_index=[]
+            a2_index = []
+            columns_1 = [table_1 + '.' + i for i in columns_1]
+            columns_2 = [table_2 + '.' + i for i in columns_2]
+            columns = columns_1 + columns_2
+            lines = np.zeros((1, len(columns_1)+len(columns_2)))
+            for index, row in enumerate(final_full):
+                if row[key_index1] == row[key_index2 + len(columns_1)]:
+                    a1_index.append(index % len(a1))
+                    a2_index.append(int(index / len(a1)))
+                    row = np.array(row).reshape(1, len(columns_1)+len(columns_2))
+                    lines = np.r_[lines, row]
+            lines = np.delete(lines, 0, axis=0)
+            right_index = set(range(len(a2)))
+            l_index = right_index - set(a2_index)
+            if len(l_index) >= 1:
+                for index in l_index:
+                    row = np.array([np.nan] * len(columns_1)+a2[index].tolist()).reshape(1, len(columns_1)+len(columns_2))
+                    lines = np.r_[lines, row]
+            left_index=set(range(len(a1)))
+            l_index=left_index-set(a1_index)
+            if len(l_index)>=1:
+                for index in l_index:
+                    row=np.array(a1[index].tolist()+[np.nan]*len(columns_2)).reshape(1,len(columns_1)+len(columns_2))
+                    lines = np.r_[lines, row]
 
     return columns,lines
 
@@ -233,8 +299,12 @@ def excute_select(sql,current_db):
         print('The sql syntax maybe wrong!')
         return None
     # current_db=None
-    root_0 = os.path.join(os.getcwd(), "Database_System")
-    root_1 = os.path.join(root_0, current_db)
+    try:
+        root_0 = os.path.join(os.getcwd(), "Database_System")
+        root_1 = os.path.join(root_0, current_db)
+    except:
+        print('Please use database first!')
+        return None
 
     if len(input[1])==1:
         tables=(input[1])
@@ -257,7 +327,6 @@ def excute_select(sql,current_db):
     if len(tables)>1:
         # join two tables
         columns,lines=join_table(tables,joins,root_1)
-
         select_columns = input[0]
         columns_index = []
         distinct_col = False
@@ -285,8 +354,10 @@ def excute_select(sql,current_db):
                 print('Please check your syntax!')
         # check out required indexes
         conditions=np.array(input[2])
-
-        indexes=con_index(conditions,lines,columns,True)
+        if len(conditions)>0:
+            indexes=con_index(conditions,lines,columns,True)
+        else:
+            indexes=list(i for i in range(len(lines)))
         if indexes is None:
             return None
         lines = lines[list(indexes)]
@@ -371,18 +442,24 @@ def excute_select(sql,current_db):
                     print('The column is not in the table')
                     return None
                 columns_index.append(columns_1.index(col))
+
         if len(agg_oprations)>0:
             if len(agg_oprations)!=len(columns_index):
                 print('The aggregation function can only appear together!')
                 print('Please check your syntax!')
                 return None
         # read data
-        a1=load_data(read_table,len(columns_1))
+        a1 = load_data_s(read_table, len(columns_1))
 
-        indexes=con_index(np.array(input[2]),a1,columns_1,False)
+        # a1=load_data(read_table,len(columns_1))
+        if len(input[2])>0:
+            indexes=con_index(np.array(input[2]),a1,columns_1,False)
+        else:
+            indexes=list(i for i in range(len(a1)))
         if indexes is None:
             return None
         a1=a1[list(indexes)]
+
 
         #check agg functions
         if len(agg_oprations)>0:
@@ -440,7 +517,7 @@ def excute_select(sql,current_db):
 
 # sql='select * from www right join ww on www.a=ww.b where www.a!=5 and ww.b>6 or ww.b<3 order by www.apple,www.pear'
 # sql='SELECT Apple From www '
-# excute_select(sql,'www')
+# excute_select(sql,'www'）
 
 
 
