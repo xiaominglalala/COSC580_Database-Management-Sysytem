@@ -2,6 +2,7 @@ from database_manipulation import *
 from table_manipulation import *
 from index_manipulation import *
 from sql_parser import *
+from relations import *
 from insert import *
 from delete import *
 from update import *
@@ -31,7 +32,14 @@ if __name__ == '__main__':
         if sql_tokens[0] in exit_command:
             print("Have a good day! Bye!")
             break
-
+        elif first_token == "rel-i-i-1000":
+            relation_function("rel-i-i-1000", current_database)
+        elif first_token == "rel-i-1-1000":
+            relation_function("rel-i-1-1000", current_database)
+        elif first_token == "rel-i-i-10000":
+            relation_function("rel-i-i-10000", current_database)
+        elif first_token == "rel-i-1-10000":
+            relation_function("rel-i-1-10000", current_database)
         elif first_token == "use":
             current_database = databse_functions(sql_tokens)
         elif sql_tokens[1] == "database":
@@ -50,7 +58,7 @@ if __name__ == '__main__':
             subtokens = parse_three_part(sql)
             delete(subtokens, current_database)
         elif first_token =='select':
-            excute_select(sql,current_database)
+            excute_select(sql, current_database)
         else:
             print("Error! Please enter a command with correct syntax!")
 

@@ -8,7 +8,7 @@ from index_manipulation import *
 def table_functions(sql_tokens, current_database):
 
     if current_database == None:
-        print("You must choose the database! Please enter: USE DATABASE YOUR_DATABASE")
+        print("You must choose the database! Please enter: USE YOUR_DATABASE")
         print("Replace 'YOUR_DATABASE' with your target database.")
         return None
 
@@ -87,7 +87,6 @@ def table_functions(sql_tokens, current_database):
         # print(table_file)
 
         # If table name doesn't exist
-
         if not os.path.exists(table_file):
             print("Woops! This table doesn't exist!")
             return None
@@ -140,11 +139,14 @@ def table_functions(sql_tokens, current_database):
 
         # Drop Index
         lines = list()
+        drop_indexes=list()
         with open(os.path.join(root_1, "index.csv"), 'r')as f:
             reader = csv.reader(f)
             for row in reader:
                 if row[0] != table_name:
                     lines.append(row)
+                else:
+                    drop_indexes.append(row[1])
         f.close()
 
         # Use "w" to overwrite
@@ -153,8 +155,13 @@ def table_functions(sql_tokens, current_database):
             writer.writerows(lines)
         f.close()
 
-
-
+        # Drop indexing structure
+        for index in drop_indexes:
+            index_file=os.path.join(root_1, table_name + '_' + index + ".pkl")
+            try:
+                os.remove(index_file)
+            except:
+                print('No such index in the database!')
 
         print("Table %s dropped successfully" % table_name.upper())
         return
@@ -168,3 +175,5 @@ def table_functions(sql_tokens, current_database):
     else:
      print("Error! Please enter a command with correct syntax!")
      return
+
+#table_functions(['drop','table','play'],'play')

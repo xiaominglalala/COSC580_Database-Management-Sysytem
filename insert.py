@@ -41,33 +41,35 @@ def insert(tokens,database):
     # tokens from parser, should be a list of string after splited input. database is the database we should in.
 
     # what if no databease seleted? this should be solved in father py file.
-    print(tokens)
-    table_name = tokens[2]
+    try:
+        table_name = tokens[2]
+        # what if this table not exist
 
-    # what if this table not exist
-
-    path = os.path.join(root_1, table_name+".csv")
-    # print(len(tokens))
-    if len(tokens)<6:
-    # insert whole rows in table
-        values = tokens[4]
-        insert_row(path,values)
-    else:
-    # insert some columns of row
-        # print(isinstance(tokens[3],list))
-        # print(isinstance(tokens[5],list))
-        # print(tokens[4].lower() == "values")
-        if "values" in tokens[4].lower() and isinstance(tokens[3],list) and isinstance(tokens[5],list):
-            columns = tokens[3]
-            # for item in columns:
-            #     item
-            columns = [i.strip() for i in columns]
-            values = tokens[5]
-            insert_part_row(path,columns,values)
+        path = os.path.join(root_1, table_name+".csv")
+        # print(len(tokens))
+        if len(tokens)<6:
+        # insert whole rows in table
+            values = tokens[4]
+            insert_row(path,values)
         else:
-            # check sql valid
-            print("Error!! input is wrong")
-
+        # insert some columns of row
+            # print(isinstance(tokens[3],list))
+            # print(isinstance(tokens[5],list))
+            # print(tokens[4].lower() == "values")
+            if "values" in tokens[4].lower() and isinstance(tokens[3],list) and isinstance(tokens[5],list):
+                columns = tokens[3]
+                # for item in columns:
+                #     item
+                columns = [i.strip() for i in columns]
+                values = tokens[5]
+                insert_part_row(path,columns,values)
+            else:
+                # check sql valid
+                print("Error!! input is wrong")
+        print("Insert Done!")
+                
+    except:
+        print("Something went wrong.")
 
 
 # path = "play.csv"

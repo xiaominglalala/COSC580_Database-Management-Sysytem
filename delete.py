@@ -113,8 +113,9 @@ def delete(tokens,database):
                 # find index of the row
                 condition = tokens[4]
                 delete_row(path,condition)
+        print("Delete Done!")
     except:
-        print("something went wrong, may be table name is wrong .")
+        print("Something went Wrong.")
 
 
 # path = "play.csv"
