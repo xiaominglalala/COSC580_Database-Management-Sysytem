@@ -81,7 +81,7 @@ def relation_function(type, current_database):
                 writer = csv.writer(f)
                 writer.writerow(["Col_1", "Col_2"])
                 for row in range(1, r5["row_number"]):
-                    writer.writerow([row, 1])
+                    writer.writerow([row, row)]
             f.close()
             #print("Success!")
         else:
