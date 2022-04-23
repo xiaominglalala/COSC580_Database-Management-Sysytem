@@ -4,6 +4,7 @@ import os
 import csv
 from sql_parser import *
 from index_manipulation import *
+from relations import *
 
 def table_functions(sql_tokens, current_database):
 
@@ -32,44 +33,49 @@ def table_functions(sql_tokens, current_database):
                         print("Woops! This table already exists!")
                         return None
 
+        if table_name in ["rel-i-i-1000", "rel-i-1-1000", "rel-i-i-10000", "rel-i-1-10000", "rel-i-1-100000", "rel-i-i-100000"]:
+            relation_function(table_name, current_database)
+        else:
 
-        # Get attribute_names and primary_key
-        attribute_list = create_table_parse(sql_tokens)
+            # Get attribute_names and primary_key
+            attribute_list = create_table_parse(sql_tokens)
 
-        # for create table xx
-        if not attribute_list:
-            print("Error! Please enter a command with correct syntax!")
-            return
-        primary_key = []
-        attribute_names = []
-        for attribute in attribute_list:
-            attribute = attribute.lstrip()
-            # get the primary key
-            reg = "primary\s*key.*\((.*)\)+"
-            primary = re.compile(reg).findall(attribute)
-            if len(primary) > 0:
-                primary = primary[0]
-                primary_key = primary.split(', ')
-            # get attributes
-            else:
-                attribute = attribute.split(' ')
-                attribute_names.append(attribute[0])
-        #print(attribute_names)
-        #print(primary_key)
-        # 列数 Column Num
-        col_num = len(attribute_names)
+            # for create table xx
+            if not attribute_list:
+                print("Error! Please enter a command with correct syntax!")
+                return
+            primary_key = []
+            attribute_names = []
+            for attribute in attribute_list:
+                attribute = attribute.lstrip()
+                # get the primary key
+                reg = "primary\s*key.*\((.*)\)+"
+                primary = re.compile(reg).findall(attribute)
+                if len(primary) > 0:
+                    primary = primary[0]
+                    primary_key = primary.split(', ')
+                # get attributes
+                else:
+                    attribute = attribute.split(' ')
+                    attribute_names.append(attribute[0])
+            #print(attribute_names)
+            #print(primary_key)
+            # 列数 Column Num
+            col_num = len(attribute_names)
 
-        # Save primary key:
-        with open(os.path.join(root_1, "primary_key.csv"), 'a', encoding='utf-8', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow([table_name, primary_key[0]])
-        f.close()
 
-        # Write attribute names
-        with open(os.path.join(root_1, "%s.csv" % table_name), 'a', encoding='utf-8', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow([i for i in attribute_names])
-        f.close()
+
+            # Save primary key:
+            with open(os.path.join(root_1, "primary_key.csv"), 'a', encoding='utf-8', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow([table_name, primary_key[0]])
+            f.close()
+
+            # Write attribute names
+            with open(os.path.join(root_1, "%s.csv" % table_name), 'a', encoding='utf-8', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow([i for i in attribute_names])
+            f.close()
 
         # Write table name into table_name.csv
         # 用'a' 才能不覆盖写入; newline解决多空行
@@ -77,6 +83,7 @@ def table_functions(sql_tokens, current_database):
             writer = csv.writer(f)
             writer.writerow([table_name])
         f.close()
+
         print("Create table successfully!")
         return
 
@@ -123,45 +130,47 @@ def table_functions(sql_tokens, current_database):
         f.close()
 
         # Delete primary key
-        lines = list()
-        with open(os.path.join(root_1, "primary_key.csv"), 'r')as f:
-            reader = csv.reader(f)
-            for row in reader:
-                if row[0] != table_name:
-                    lines.append(row)
-        f.close()
+        if os.path.exists(os.path.join(root_1, "primary_key.csv")):
+            lines = list()
+            with open(os.path.join(root_1, "primary_key.csv"), 'r')as f:
+                reader = csv.reader(f)
+                for row in reader:
+                    if row[0] != table_name:
+                        lines.append(row)
+            f.close()
 
-        # Use "w" to overwrite
-        with open(os.path.join(root_1, "primary_key.csv"), 'w', encoding='utf-8', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerows(lines)
-        f.close()
+            # Use "w" to overwrite
+            with open(os.path.join(root_1, "primary_key.csv"), 'w', encoding='utf-8', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerows(lines)
+            f.close()
 
         # Drop Index
-        lines = list()
-        drop_indexes=list()
-        with open(os.path.join(root_1, "index.csv"), 'r')as f:
-            reader = csv.reader(f)
-            for row in reader:
-                if row[0] != table_name:
-                    lines.append(row)
-                else:
-                    drop_indexes.append(row[1])
-        f.close()
+        if os.path.exists(os.path.join(root_1, "index.csv")):
+            lines = list()
+            drop_indexes=list()
+            with open(os.path.join(root_1, "index.csv"), 'r')as f:
+                reader = csv.reader(f)
+                for row in reader:
+                    if row[0] != table_name:
+                        lines.append(row)
+                    else:
+                        drop_indexes.append(row[1])
+            f.close()
 
-        # Use "w" to overwrite
-        with open(os.path.join(root_1, "index.csv"), 'w', encoding='utf-8', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerows(lines)
-        f.close()
+            # Use "w" to overwrite
+            with open(os.path.join(root_1, "index.csv"), 'w', encoding='utf-8', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerows(lines)
+            f.close()
 
-        # Drop indexing structure
-        for index in drop_indexes:
-            index_file=os.path.join(root_1, table_name + '_' + index + ".pkl")
-            try:
-                os.remove(index_file)
-            except:
-                print('No such index in the database!')
+            # Drop indexing structure
+            for index in drop_indexes:
+                index_file=os.path.join(root_1, table_name + '_' + index + ".pkl")
+                try:
+                    os.remove(index_file)
+                except:
+                    print('No such index in the database!')
 
         print("Table %s dropped successfully" % table_name.upper())
         return

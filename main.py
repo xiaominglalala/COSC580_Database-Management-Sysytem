@@ -32,14 +32,6 @@ if __name__ == '__main__':
         if sql_tokens[0] in exit_command:
             print("Have a good day! Bye!")
             break
-        elif first_token == "rel-i-i-1000":
-            relation_function("rel-i-i-1000", current_database)
-        elif first_token == "rel-i-1-1000":
-            relation_function("rel-i-1-1000", current_database)
-        elif first_token == "rel-i-i-10000":
-            relation_function("rel-i-i-10000", current_database)
-        elif first_token == "rel-i-1-10000":
-            relation_function("rel-i-1-10000", current_database)
         elif first_token == "use":
             current_database = databse_functions(sql_tokens)
         elif sql_tokens[1] == "database":
