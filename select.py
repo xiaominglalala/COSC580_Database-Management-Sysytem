@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 from tabulate import tabulate
 import warnings
-
+import re
 warnings.filterwarnings('ignore')
 
 def con_manu(array,condition,columns,join_flag):
@@ -55,14 +55,16 @@ def load_data(open_file,col_n):
 def con_index(conditions,array,columns,join_flag):
     if len(conditions)==0:
         return [i for i in range(len(array))]
+
     for state in conditions:
-        if join_flag:
-            col = state[0]
-        else:
-            col = state[0].split('.')[-1]
-        if col not in columns:
-            print('The condition column is not in the table!')
-            return None
+        if state!='and' and state!='or':
+            if join_flag:
+                col = state[0]
+            else:
+                col = state[0].split('.')[-1]
+            if col not in columns :
+                print('The condition column is not in the table!')
+                return None
     match_rows = []
     if len(conditions)==1:
         match_rows.append(set(con_manu(array, conditions[0], columns, join_flag)[0]))
@@ -258,27 +260,79 @@ def excute_select(sql,current_db):
 
         select_columns = input[0]
         columns_index = []
+        distinct_col = False
+        agg_oprations = []
         # check columns
         if select_columns==['*']:
             columns_index=[i for i in range(len(columns))]
             select_columns=columns
         else:
             for i, col in enumerate(select_columns):
+                if re.match(r'distinct ',col):
+                    col=col.split()[-1]
+                    distinct_col=True
+                if re.match(r'max |min |sum |count |avg ',col):
+                    agg_oprations.append(re.match(r'max |min |sum |count |avg ',col)[0].strip())
+                    col=col.split()[-1]
                 if col not in columns:
                     print('The {} column is not in the table, please enter correct names'.format(col))
                     print('The columns after join is',columns)
                     return None
                 columns_index.append(columns.index(col))
-
+        if len(agg_oprations) > 0:
+            if len(agg_oprations) != len(columns_index):
+                print('The aggregation function can only appear together!')
+                print('Please check your syntax!')
         # check out required indexes
         conditions=np.array(input[2])
+
         indexes=con_index(conditions,lines,columns,True)
         if indexes is None:
             return None
         lines = lines[list(indexes)]
 
-        # order the table
+        #check agg functions
+        if len(agg_oprations)>0:
+            final_table=np.zeros((1,len(agg_oprations)))
+
+            for index,agg in enumerate(agg_oprations):
+                try:
+                    if agg=='max':
+                        temp_a=lines[:, columns_index[index]]
+                        temp_a = temp_a.astype(np.float)
+                        temp_a=temp_a[np.where(~np.isnan(temp_a))]
+                        final_table[0][index]=np.max(temp_a)
+                    elif agg=='min':
+                        temp_a = lines[:, columns_index[index]]
+                        temp_a=temp_a.astype(np.float)
+                        temp_a = temp_a[np.where(~np.isnan(temp_a))]
+                        final_table[0][index] = np.min(temp_a)
+                    elif agg=='count':
+                        temp_a = lines[:, columns_index[index]]
+                        final_table[0][index] = len(temp_a)
+                    elif agg=='sum':
+                        temp_a = lines[:, columns_index[index]]
+                        temp_a = temp_a.astype(np.float)
+                        temp_a = temp_a[np.where(~np.isnan(temp_a))]
+                        final_table[0][index] = np.sum(temp_a)
+                    else:
+                        temp_a = lines[:, columns_index[index]]
+                        temp_a = temp_a.astype(np.float)
+                        temp_a = temp_a[np.where(~np.isnan(temp_a))]
+                        final_table[0][index] = np.mean(temp_a)
+                except:
+                    print('The aggregation function only deal with int or float index!')
+                    return final_table
+            final_table = np.vstack((select_columns, final_table))
+            print(tabulate(final_table, headers='firstrow', tablefmt='fancy_grid', missingval='N/A'))
+            return final_table
+
+        # select the table
         lines=lines[:,columns_index]
+        if distinct_col:
+            lines=np.unique(lines,axis=0)
+            select_columns[0] = select_columns[0].split()[-1]
+        # order the table
         lines=order_data(lines,input[3],select_columns,True)
 
 
@@ -294,8 +348,9 @@ def excute_select(sql,current_db):
     else:
         columns = [i.split('.')[-1] for i in input[0]]
         columns_index=[]
+        distinct_col=False
         read_table = open(os.path.join(root_1, "{}.csv".format(tables[0])), 'r')
-
+        agg_oprations=[]
         # load columns
         for row in csv.reader(read_table):
             columns_1=row
@@ -306,11 +361,21 @@ def excute_select(sql,current_db):
             columns=columns_1
         else:
             for i,col in enumerate(columns):
+                if re.match(r'distinct ',col):
+                    col=col.split()[-1]
+                    distinct_col=True
+                if re.match(r'max |min |sum |count |avg ',col):
+                    agg_oprations.append(re.match(r'max |min |sum |count |avg ',col)[0].strip())
+                    col=col.split()[-1]
                 if col not in columns_1:
                     print('The column is not in the table')
                     return None
                 columns_index.append(columns_1.index(col))
-
+        if len(agg_oprations)>0:
+            if len(agg_oprations)!=len(columns_index):
+                print('The aggregation function can only appear together!')
+                print('Please check your syntax!')
+                return None
         # read data
         a1=load_data(read_table,len(columns_1))
 
@@ -319,9 +384,46 @@ def excute_select(sql,current_db):
             return None
         a1=a1[list(indexes)]
 
-        #select columns
-        a1=a1[:,columns_index]
+        #check agg functions
+        if len(agg_oprations)>0:
+            final_table=np.zeros((1,len(agg_oprations)))
 
+            for index,agg in enumerate(agg_oprations):
+                try:
+                    if agg=='max':
+                        temp_a=a1[:, columns_index[index]]
+                        temp_a = temp_a.astype(np.float)
+                        temp_a = temp_a[np.where(~np.isnan(temp_a))]
+                        final_table[0][index]=np.max(temp_a)
+                    elif agg=='min':
+                        temp_a = a1[:, columns_index[index]]
+                        temp_a=temp_a.astype(np.float)
+                        temp_a = temp_a[np.where(~np.isnan(temp_a))]
+                        final_table[0][index] = np.min(temp_a)
+                    elif agg=='count':
+                        temp_a = a1[:, columns_index[index]]
+                        final_table[0][index] = len(temp_a)
+                    elif agg=='sum':
+                        temp_a = a1[:, columns_index[index]]
+                        temp_a = temp_a.astype(np.float)
+                        temp_a = temp_a[np.where(~np.isnan(temp_a))]
+                        final_table[0][index] = np.sum(temp_a)
+                    else:
+                        temp_a = a1[:, columns_index[index]]
+                        temp_a = temp_a.astype(np.float)
+                        temp_a = temp_a[np.where(~np.isnan(temp_a))]
+                        final_table[0][index] = np.mean(temp_a)
+                except:
+                    print('The aggregation function only deal with int or float index!')
+                    return None
+            final_table = np.vstack((columns, final_table))
+            print(tabulate(final_table, headers='firstrow', tablefmt='fancy_grid', missingval='N/A'))
+            return final_table
+        #select columns
+        a1 = a1[:, columns_index]
+        if distinct_col:
+            a1=np.unique(a1,axis=0)
+            columns[0]=columns[0].split()[-1]
         #order by
         orders=input[3]
         final_table=order_data(a1,orders,columns,False)
@@ -331,7 +433,7 @@ def excute_select(sql,current_db):
         else:
         # combine columns and table
             final_table=np.vstack((columns,final_table))
-            print(tabulate(final_table,headers='firstrow',tablefmt='fancy_grid', missingval='N/A'))
+            print(tabulate(final_table,headers='firstrow',tablefmt='fancy_grid',missingval='N/A'))
 
     return final_table
 
