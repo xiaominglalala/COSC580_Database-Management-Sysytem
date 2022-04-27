@@ -167,7 +167,8 @@ def update(tokens,database):
                         pass
                     else:
                         print("Primary Key Duplicate")
-                        exit()
+                        # exit()
+                        return None
                         print("do something")
                 else:
                     pass
@@ -184,7 +185,8 @@ def update(tokens,database):
                         pass
                     else:
                         print("Primary Key Duplicate")
-                        exit()
+                        # exit()
+                        return None
                         print("do something")
                 else:
                     pass
