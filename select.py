@@ -156,7 +156,7 @@ def join_table(tables,join_table,database_path):
     key_index2 = columns_2.index(col_2)
     a1=load_data_s(r_table_1,len(columns_1))
     a2=load_data_s(r_table_2,len(columns_2))
-    if len(a1)>=10000 and len(a2)>=5000:
+    if len(a1)>=5000 or len(a2)>=5000:
         # lines=[]
         # for i1,l1 in enumerate(a1):
         #     for i2,l2 in enumerate(a2):
