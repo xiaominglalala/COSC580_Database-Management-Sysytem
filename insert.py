@@ -45,9 +45,9 @@ def insert_part_row(path,columns,values):
     df = pd.read_csv(path)
     df = df.astype(str)
     columns = df.columns.values.tolist()
-    print(columns)
+    #print(columns)
     new_col = df2.keys()
-    print(new_col)
+    #print(new_col)
     if set(columns) >= set(new_col):
         df =  df.append(df2,ignore_index = True)
     else:
