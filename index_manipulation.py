@@ -39,6 +39,9 @@ def index_functions(sql_tokens, current_database):
                         if row[0] == table_name and row[1] == index_name:
                             print("This index already exists! Please drop it first!")
                             flag = 0
+                        elif row[2]==column_name:
+                            print('This column has built the index!')
+                            flag=0
                     except:
                         flag = 2
             f.close()
