@@ -35,7 +35,10 @@ def relation_function(type, current_database):
                     writer.writerow([row, row])
             f.close()
             #print("Success!")
-
+            with open(os.path.join(root_1, "primary_key.csv"), 'a', encoding='utf-8', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow([type, 'col_1'])
+            f.close()
         else:
             print("Already created.")
 
@@ -46,6 +49,10 @@ def relation_function(type, current_database):
                 writer.writerow(["col_1", "col_2"])
                 for row in range(1, r2["row_number"]):
                     writer.writerow([row, 1])
+            f.close()
+            with open(os.path.join(root_1, "primary_key.csv"), 'a', encoding='utf-8', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow([type, 'col_1'])
             f.close()
             # print("Success!")
         else:
@@ -59,6 +66,10 @@ def relation_function(type, current_database):
                 for row in range(1, r3["row_number"]):
                     writer.writerow([row, row])
             f.close()
+            with open(os.path.join(root_1, "primary_key.csv"), 'a', encoding='utf-8', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow([type, 'col_1'])
+            f.close()            
             #print("Success!")
         else:
             print("Already created.")
@@ -70,6 +81,10 @@ def relation_function(type, current_database):
                 writer.writerow(["col_1", "col_2"])
                 for row in range(1, r4["row_number"]):
                     writer.writerow([row, 1])
+            f.close()
+            with open(os.path.join(root_1, "primary_key.csv"), 'a', encoding='utf-8', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow([type, 'col_1'])
             f.close()
             #print("Success!")
         else:
@@ -83,6 +98,10 @@ def relation_function(type, current_database):
                 for row in range(1, r5["row_number"]):
                     writer.writerow([row, row])
             f.close()
+            with open(os.path.join(root_1, "primary_key.csv"), 'a', encoding='utf-8', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow([type, 'col_1'])
+            f.close()            
             #print("Success!")
         else:
             print("Already created.")
@@ -95,6 +114,10 @@ def relation_function(type, current_database):
                 for row in range(1, r6["row_number"]):
                     writer.writerow([row, 1])
             f.close()
+            with open(os.path.join(root_1, "primary_key.csv"), 'a', encoding='utf-8', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow([type, 'col_1'])
+            f.close()            
             #print("Success!")
         else:
             print("Already created.")
