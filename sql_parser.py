@@ -332,7 +332,6 @@ def parse_select(sql):
     # parse conditions
     conditions = []
     if where_part:
-        print([i for i in where_part if i.split()[0]=='where'or i.split()[0]=='and' or i.split()[0]=='or'])
         where_part=[i for i in where_part if i.split()[0]=='where'or i.split()[0]=='and' or i.split()[0]=='or']
         where_part=[re.sub(r'^where ','',i) for i in where_part]
         # where_part=' '.join([i for i in where_part if i.split()[0]=='where'or i.split()[0]=='and' or i.split()[0]=='or'])[6:].split()
