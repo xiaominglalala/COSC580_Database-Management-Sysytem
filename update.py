@@ -4,6 +4,19 @@ import pandas as pd
 import sql_parser
 import re
 
+def check_dub(path,key_index,value):
+    flag = True
+    with open(path,'r', encoding='utf-8', newline='') as f:
+        reader = csv.reader(f, delimiter=',')
+        for row in reader:
+            if row[key_index] == value:
+                flag = False
+    f.close()
+    if flag:
+        return True
+    else:
+        return False
+
 # UPDATE table_name SET column1 = value1, column2 = value2, ... WHERE condition;
 # tokens = ['UPDATE', 'table_name', 'SET', [column1 = value1, column2 = value2], 'WHERE', [('condition', '=', '1 '), 'or', (' aaa', '=', '2')]]
 def update_row(path,value_dict,cond):
@@ -48,10 +61,10 @@ def update_row(path,value_dict,cond):
             # print(condition)
 
             apples_indices_list.append(apples_indices.tolist())
-    print(apples_indices_list)
+    # print(apples_indices_list)
   
     while len(apples_indices_list)>1:
-        print(apples_indices_list)
+        # print(apples_indices_list)
         if apples_indices_list[1] == 'and':
             set1 = set(apples_indices_list[0])
             set2 = set(apples_indices_list[2])
@@ -100,6 +113,33 @@ def update(tokens,database):
         # what if this table not exist
 
         path = os.path.join(root_1, table_name+".csv")
+        
+        key_path = os.path.join(root_1, "primary_key.csv")
+        key_flag = os.path.exists(key_path)
+
+        if key_flag:
+            with open(key_path,'r', encoding='utf-8', newline='') as f:
+                reader = csv.reader(f, delimiter=',')
+                for row in reader:
+                    if row[0] == table_name:
+                        key = row[1]
+                        break
+            f.close()
+
+            with open(path,'r', encoding='utf-8', newline='') as f:
+                reader = csv.reader(f, delimiter=',')
+                for i,row in enumerate(reader):
+                    if i == 0:
+                        key_index = row.index(key)
+                        break
+            f.close()
+        else:
+            key = None
+            key_index = None
+        # print(key)
+        # print(key_index)
+
+
 
         # TODO check columns exist,len right
         value_list = re.split(' |=|,',','.join(tokens[3]))
@@ -112,7 +152,7 @@ def update(tokens,database):
             # print("++++++++")
             i+=2
         # print(value_dict)
-        if tokens[4].lower()=='where':
+        if len(tokens)>4:
         # update condition rows in table
             
             
@@ -120,12 +160,43 @@ def update(tokens,database):
             condition = tokens[5]
             # condition = [i for i in condition if i]
 
+            if key_flag:
+                if key in value_dict.keys():
+                    key_value = value_dict[key]
+                    if check_dub(path,key_index,key_value):
+                        pass
+                    else:
+                        print("Primary Key Duplicate")
+                        # exit()
+                        return None
+                        print("do something")
+                else:
+                    pass
+            else:
+                pass
+
             update_row(path,value_dict,condition)
         else:
         # update all row
+            if key_flag:
+                if key in value_dict.keys():
+                    key_value = value_dict[key]
+                    if check_dub(path,key_index,key_value):
+                        pass
+                    else:
+                        print("Primary Key Duplicate")
+                        # exit()
+                        return None
+                        print("do something")
+                else:
+                    pass
+            else:
+                pass
+
             update_whole_row(path,value_dict)
+        print('Update Done!')
     except:
-        print("something went wrong, may be table name is wrong .")
+        print("Something went Wrong.")
 
 
 # path = "play.csv"
@@ -134,4 +205,4 @@ def update(tokens,database):
 # update_row(path,{'name': 'gggggg'},[('sha','=','2222')])
 
 # update_whole_row(path,{'name': 'ame', 'id': 'v'})
-# update(['update', 'play', 'set', ['name=ggggg'], 'where', [('id','=','c')]],'play')
+# update(['update', 'employee', 'set', ['emp#=1'], 'where', [('name','=','7')]],'zz')
