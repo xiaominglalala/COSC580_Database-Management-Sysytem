@@ -21,6 +21,7 @@ def check_dub(path,key_index,value):
 # tokens = ['UPDATE', 'table_name', 'SET', [column1 = value1, column2 = value2], 'WHERE', [('condition', '=', '1 '), 'or', (' aaa', '=', '2')]]
 def update_row(path,value_dict,cond):
     df = pd.read_csv(path)
+    columns = df.columns.values.tolist()
     # df = df.astype(str)
     index = df.index
     # condition = df
@@ -84,12 +85,22 @@ def update_row(path,value_dict,cond):
             break
             
     new_df = pd.DataFrame(value_dict,index=apples_indices_list[0])
-    df.update(new_df)
-    df.to_csv(path, index=False)
+    # df.update(new_df)
+    # df.to_csv(path, index=False)
+    # print('Update Done!')
+    if set(columns) >= set(value_dict.keys()):
+        df.update(new_df)
+        df.to_csv(path, index=False)
+        print('Update Done!')
+    else:
+        print("No column matching conditions")
 
 def update_whole_row(path,value_dict):
     df = pd.read_csv(path)
     # df = df.astype(str)
+    columns = df.columns.values.tolist()
+    # print(columns)
+    # print(value_dict.keys())
     index = df.index
     condition = df['index'] == df['index']
     apples_indices = index[condition]
@@ -97,8 +108,12 @@ def update_whole_row(path,value_dict):
 
     apples_indices_list = apples_indices.tolist()
     new_df = pd.DataFrame(value_dict,index=apples_indices_list)
-    df.update(new_df)
-    df.to_csv(path, index=False)
+    if set(columns) >= set(value_dict.keys()):
+        df.update(new_df)
+        df.to_csv(path, index=False)
+        print('Update Done!')
+    else:
+        print("No column matching conditions")
 
 
 
@@ -194,7 +209,7 @@ def update(tokens,database):
                 pass
 
             update_whole_row(path,value_dict)
-        print('Update Done!')
+        # print('Update Done!')
     except:
         print("Something went Wrong.")
 

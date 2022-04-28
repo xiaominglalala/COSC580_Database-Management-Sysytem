@@ -37,6 +37,7 @@ def insert_row(path,values):
         with open( path,'a', encoding='utf-8', newline='') as f:
             writer = csv.writer(f)
             writer.writerows([values])
+        print("Insert Done!")
     else:
         print("Lack Attributes")
 
@@ -50,6 +51,7 @@ def insert_part_row(path,columns,values):
     #print(new_col)
     if set(columns) >= set(new_col):
         df =  df.append(df2,ignore_index = True)
+        print("Insert Done!")
     else:
         print("Lack Attributes")
     df.to_csv(path, index=False)
@@ -64,68 +66,43 @@ def insert(tokens,database):
     # what if no databease seleted? this should be solved in father py file.
 
 
-    # try:
-    table_name = tokens[2]
-    # what if this table not exist
+    try:
+        table_name = tokens[2]
+        # what if this table not exist
 
-    path = os.path.join(root_1, table_name+".csv")
+        path = os.path.join(root_1, table_name+".csv")
 
-    key_path = os.path.join(root_1, "primary_key.csv")
-    key_flag = os.path.exists(key_path)
-
-    if key_flag:
-        with open(key_path,'r', encoding='utf-8', newline='') as f:
-            reader = csv.reader(f, delimiter=',')
-            for row in reader:
-                if row[0] == table_name:
-                    key = row[1]
-                    break
-        f.close()
-
-        with open(path,'r', encoding='utf-8', newline='') as f:
-            reader = csv.reader(f, delimiter=',')
-            for i,row in enumerate(reader):
-                if i == 0:
-                    key_index = row.index(key)
-                    break
-        f.close()
-    else:
-        key = None
-        key_index = None
-    # print(key)
-    # print(key_index)
-
-
-
-    # print(len(tokens))
-    if len(tokens)<6:
-    # insert whole rows in table
-        values = tokens[4]
+        key_path = os.path.join(root_1, "primary_key.csv")
+        key_flag = os.path.exists(key_path)
 
         if key_flag:
-            key_value = values[key_index]
-            if check_dub(path,key_index,key_value):
-                pass
-            else:
-                print("Primary Key Duplicate")
-                # exit()
-                return None
-                print("do something")
-        else:
-            pass
+            with open(key_path,'r', encoding='utf-8', newline='') as f:
+                reader = csv.reader(f, delimiter=',')
+                for row in reader:
+                    if row[0] == table_name:
+                        key = row[1]
+                        break
+            f.close()
 
-        insert_row(path,values)
-    else:
-    # insert some columns of row
-        # print(isinstance(tokens[3],list))
-        # print(isinstance(tokens[5],list))
-        # print(tokens[4].lower() == "values")
-        if "values" in tokens[4].lower() and isinstance(tokens[3],list) and isinstance(tokens[5],list):
-            columns = tokens[3]
-            # for item in columns:
-            #     item
-            columns = [i.strip() for i in columns]
-            values = tokens[5]
+            with open(path,'r', encoding='utf-8', newline='') as f:
+                reader = csv.reader(f, delimiter=',')
+                for i,row in enumerate(reader):
+                    if i == 0:
+                        key_index = row.index(key)
+                        break
+            f.close()
+        else:
+            key = None
+            key_index = None
+        # print(key)
+        # print(key_index)
+
+
+
+        # print(len(tokens))
+        if len(tokens)<6:
+        # insert whole rows in table
+            values = tokens[4]
 
             if key_flag:
                 key_value = values[key_index]
@@ -138,16 +115,41 @@ def insert(tokens,database):
                     print("do something")
             else:
                 pass
-            # print(columns)
-            # print(values)
-            insert_part_row(path,columns,values)
+
+            insert_row(path,values)
         else:
-            # check sql valid
-            print("Error!! input is wrong")
-    print("Insert Done!")
+        # insert some columns of row
+            # print(isinstance(tokens[3],list))
+            # print(isinstance(tokens[5],list))
+            # print(tokens[4].lower() == "values")
+            if "values" in tokens[4].lower() and isinstance(tokens[3],list) and isinstance(tokens[5],list):
+                columns = tokens[3]
+                # for item in columns:
+                #     item
+                columns = [i.strip() for i in columns]
+                values = tokens[5]
+
+                if key_flag:
+                    key_value = values[key_index]
+                    if check_dub(path,key_index,key_value):
+                        pass
+                    else:
+                        print("Primary Key Duplicate")
+                        # exit()
+                        return None
+                        print("do something")
+                else:
+                    pass
+                # print(columns)
+                # print(values)
+                insert_part_row(path,columns,values)
+            else:
+                # check sql valid
+                print("Error!! input is wrong")
+        # print("Insert Done!")
                 
-    # except:
-    #     print("Something went wrong.")
+    except:
+        print("Something went wrong.")
 
 
 # path = "play.csv"
