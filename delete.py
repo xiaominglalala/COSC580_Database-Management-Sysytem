@@ -26,10 +26,12 @@ def delete_all_rows(path):
 
 def delete_row(path,cond):
     df = pd.read_csv(path)
+    columns = df.columns.values.tolist()
     index = df.index
     # condition = df
     apples_indices_list = []
     for tup in cond:
+        # print(tup)
         if tup == 'and' or tup == 'or':
             apples_indices_list.append(tup)
         else:
@@ -37,6 +39,12 @@ def delete_row(path,cond):
             condition = df
             # num = tup[2]
             # print(num)
+            if tup[0] not in columns:
+                print("Column is not exist")
+                return None
+            else:
+                pass
+
             try:
                 num = int(tup[2])
             except:
@@ -48,6 +56,7 @@ def delete_row(path,cond):
                 att=condition[tup[0]]
             # print(att)
             # print(num)
+
             if operator == "=":
                 condition = att == num
             elif operator == "!=":
@@ -95,7 +104,7 @@ def delete_row(path,cond):
     # if df_new.shape[0] == df.shape[0]:
     #     print("No row matches condition")
     # else:
-    #     print("Delete Done!")
+    print("Delete Done!")
 
 
 def delete(tokens,database):
