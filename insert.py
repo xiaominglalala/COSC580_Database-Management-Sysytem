@@ -39,7 +39,7 @@ def insert_row(path,values):
             writer.writerows([values])
         print("Insert Done!")
     else:
-        print("Lack Attributes")
+        print("No matching columns")
 
 def insert_part_row(path,columns,values):
     df2 = dict(zip(columns,values))
@@ -53,7 +53,7 @@ def insert_part_row(path,columns,values):
         df =  df.append(df2,ignore_index = True)
         print("Insert Done!")
     else:
-        print("Lack Attributes")
+        print("No matching columns")
     df.to_csv(path, index=False)
 
 
