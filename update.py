@@ -93,7 +93,7 @@ def update_row(path,value_dict,cond):
         df.to_csv(path, index=False)
         print('Update Done!')
     else:
-        print("No column matching conditions")
+        print("No matching columns")
 
 def update_whole_row(path,value_dict):
     df = pd.read_csv(path)
@@ -113,7 +113,7 @@ def update_whole_row(path,value_dict):
         df.to_csv(path, index=False)
         print('Update Done!')
     else:
-        print("No column matching conditions")
+        print("No matching columns")
 
 
 
