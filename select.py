@@ -298,6 +298,8 @@ def excute_select(sql,current_db):
     except:
         print('The sql syntax maybe wrong!')
         return None
+    if input is None:
+        return
     # current_db=None
     try:
         root_0 = os.path.join(os.getcwd(), "Database_System")
