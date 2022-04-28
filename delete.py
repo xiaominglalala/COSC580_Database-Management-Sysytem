@@ -90,10 +90,12 @@ def delete_row(path,cond):
 
     df_new =  df.drop(index=apples_indices_list[0])
     df_new.to_csv(path, index=False)
-    if df_new.shape[0] == df.shape[0]:
-        print("No row matches condition")
-    else:
-        print("Delete Done!")
+    # print(df_new.shape[0])
+    # print(df.shape[0])
+    # if df_new.shape[0] == df.shape[0]:
+    #     print("No row matches condition")
+    # else:
+    #     print("Delete Done!")
 
 
 def delete(tokens,database):
@@ -102,26 +104,26 @@ def delete(tokens,database):
     # tokens from parser, should be a list of string after splited input. database is the database we should in.
 
     # what if no databease seleted? this should be solved in father py file.
-    # try:
-    table_name = tokens[2]
-    # what if this table not exist
+    try:
+        table_name = tokens[2]
+        # what if this table not exist
 
-    path = os.path.join(root_1, table_name+".csv")
-    if len(tokens) < 4:
-    # delete all rows in table
-        delete_all_rows(path)
-    else:
-    # delete determain row
-        if tokens[3].upper() != "WHERE":
-        # check sql valid
-            print("Error!! it cannot be %s here" % tokens[3])
+        path = os.path.join(root_1, table_name+".csv")
+        if len(tokens) < 4:
+        # delete all rows in table
+            delete_all_rows(path)
         else:
-            # find index of the row
-            condition = tokens[4]
-            delete_row(path,condition)
+        # delete determain row
+            if tokens[3].upper() != "WHERE":
+            # check sql valid
+                print("Error!! it cannot be %s here" % tokens[3])
+            else:
+                # find index of the row
+                condition = tokens[4]
+                delete_row(path,condition)
     # print("Delete Done!")
-    # except:
-    #     print("Something went Wrong.")
+    except:
+        print("Something went Wrong.")
 
 
 # path = "play.csv"
